@@ -14,9 +14,10 @@ class Game:
         pygame.display.set_caption("Chess")
         self.clock = pygame.time.Clock()
         self.running = True
+        self.white_turn = True 
 
         self.board = Board()
-        self.input_handler = InputHandler(self.board)
+        self.input_handler = InputHandler(self.board, self)
 
 
     def run(self):
@@ -31,23 +32,18 @@ class Game:
                 
                 self.input_handler.handle(event)
 
-            # Draw board every frame
-            # Check who's turn it likely is (temporary)
-            if self.input_handler.selected_index is not None:
-                selected_piece = self.board.board_pieces[self.input_handler.selected_index]
-                white_turn = selected_piece.startswith("w")
-            else:
-                white_turn = True
+
 
             
             
             self.board.draw_tiles(self.screen)
-            self.board.retrieve_king_position()
+            
             
 
             self.board.highlight_tile(self.input_handler.selected_index, self.screen)
             self.board.highlight_moves(self.input_handler.available_moves, self.screen)
             self.board.draw_pieces(self.screen)
+            pygame.display.set_caption(f"Chess - {'White' if self.white_turn else 'Black'}'s Turn")
 
             
 

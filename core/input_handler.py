@@ -4,8 +4,9 @@ import pygame
 from settings import MARGIN_X, MARGIN_Y, BOARD_SIZE, SQUARE_SIZE, COLS
 
 class InputHandler:
-    def __init__(self, board):
+    def __init__(self, board, game):
         self.board = board
+        self.game = game  # <- reference to Game to access white_turn
         self.selected_index = None  # First click index
         self.available_moves = []   # Will be set after first click
 
@@ -15,18 +16,20 @@ class InputHandler:
             if index is None:
                 return
 
-            if self.selected_index is None:
-                # First click
-                self.selected_index = index
-                self.available_moves = self.board.get_valid_moves(index)
-                print(f"First click: {self.selected_index}")
-                print(f"Available moves: {self.available_moves}")
+            piece = self.board.board_pieces[index]
+            current_turn_prefix = "w" if self.game.white_turn else "b"
 
+            if self.selected_index is None:
+                # First click: select only own piece
+                if piece != "0" and piece.startswith(current_turn_prefix):
+                    self.selected_index = index
+                    self.available_moves = self.board.get_valid_moves(index)
+                    print(f"First click: {self.selected_index}")
+                    print(f"Available moves: {self.available_moves}")
             else:
                 if index == self.selected_index:
-                    print(f"Second click: {index}")
-                    print(f"Moved from {self.selected_index} to {index}")
-                    
+                    # Deselect
+                    print(f"Deselected: {index}")
                     self.selected_index = None
                     self.available_moves = []
                 elif index in self.available_moves:
@@ -35,14 +38,15 @@ class InputHandler:
                     print(f"Moved from {self.selected_index} to {index}")
                     self.selected_index = None
                     self.available_moves = []
+                    self.game.white_turn = not self.game.white_turn  # 🔁 Switch turn
                 else:
-                    # New piece selected → reassign first click
-                    print(f"Second click is first click. First click is now: {index}")
+                    # Clicked a new tile, check if it’s your own piece
+                    if piece != "0" and piece.startswith(current_turn_prefix):
+                        print(f"Switched selection to: {index}")
+                        self.selected_index = index
+                        self.available_moves = self.board.get_valid_moves(index)
+                        print(f"Available moves: {self.available_moves}")
 
-                    self.selected_index = index
-                    self.available_moves = self.board.get_valid_moves(index)
-
-                    print(f"Available moves: {self.available_moves}")
 
 
 

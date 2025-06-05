@@ -201,10 +201,9 @@ class Board:
             self.board_pieces[to_index] = "bQ"
 
     def retrieve_king_position(self):
-
  
         self.king_position[0] = self.board_pieces.index("wK")
         self.king_position[1] = self.board_pieces.index("bK")
         print(f"kings positions: {self.king_position}")
         
-
+    
