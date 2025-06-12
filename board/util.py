@@ -1,4 +1,4 @@
-#board/util.py
+# board/util.py
 
 import pygame
 

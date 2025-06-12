@@ -4,6 +4,7 @@ import pygame
 from settings import WINDOW_WIDTH, WINDOW_HEIGHT, BG_COLOR, FPS
 from board.board import Board
 from core.input_handler import InputHandler
+from board.util import util
 
 
 
@@ -15,8 +16,11 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.white_turn = True
+        self.king_in_check : bool
+
 
         self.board = Board()
+        self.util = util(self.board)  # Initialize util with the board reference
         self.input_handler = InputHandler(self.board, self)
 
 
@@ -33,16 +37,18 @@ class Game:
                 self.input_handler.handle(event)
 
 
+            # use this for locking only the king will be played or a piece that can move the king out of check
+            self.king_in_check = self.util.king_in_check(self.white_turn)  # True if the king is in check False if not 
+            
+            
+            self.board.draw_tiles(self.screen)# draws the tiles of the board
+            self.board.draw_red_tile(self.screen, self.white_turn)# draws the red tile if the king is in check
 
-            
-            
-            
-            self.board.draw_tiles(self.screen, self.white_turn)
-            
-            
 
             self.board.highlight_tile(self.input_handler.selected_index, self.screen)
             self.board.highlight_moves(self.input_handler.available_moves, self.screen)
+
+
             self.board.draw_pieces(self.screen)
             
             

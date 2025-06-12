@@ -1,3 +1,5 @@
+# pieces/__init__.py
+
 import pygame
 import os
 
