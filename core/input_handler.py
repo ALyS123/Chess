@@ -27,11 +27,11 @@ class InputHandler:
                     valid_moves = self.board.get_valid_moves(index)
 
                     # If the king is in check, filter moves to those that resolve it
-                    if self.game.king_in_check:
-                        valid_moves = [
-                            move for move in valid_moves
-                            if self.board.util.is_move_resolving_check(self.selected_index, move, self.game.white_turn)
-                        ]
+                    valid_moves = [
+                        move for move in valid_moves
+                        if self.board.util.is_move_resolving_check(self.selected_index, move, self.game.white_turn)
+                    ]
+
 
                     self.available_moves = valid_moves
 
@@ -52,11 +52,11 @@ class InputHandler:
                         self.selected_index = index
                         valid_moves = self.board.get_valid_moves(index)
 
-                        if self.game.king_in_check:
-                            valid_moves = [
-                                move for move in valid_moves
-                                if self.board.util.is_move_resolving_check(self.selected_index, move, self.game.white_turn)
-                            ]
+                        #if self.game.king_in_check:
+                        valid_moves = [
+                            move for move in valid_moves
+                            if self.board.util.is_move_resolving_check(self.selected_index, move, self.game.white_turn)
+                        ]
 
                         self.available_moves = valid_moves
 
