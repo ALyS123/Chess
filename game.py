@@ -43,6 +43,15 @@ class Game:
             if self.util.is_checkmate(self.white_turn):
                 print(f"Checkmate! {'Black' if self.white_turn else 'White'} wins.")
                 self.running = False
+            # Check for stalemate
+            elif self.util.is_stalemate(self.white_turn):
+                print("Stalemate! It's a draw.")
+                self.running = False
+            # check for draw
+            elif self.util.is_draw_by_insufficient_material():
+                print("Draw! Insufficient material to checkmate.")
+                self.running = False
+
 
             
             self.board.draw_tiles(self.screen)# draws the tiles of the board

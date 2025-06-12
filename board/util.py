@@ -126,5 +126,33 @@ class util:
 
         return True  # No move can resolve the check → checkmate
     
+    def is_stalemate(self, by_white: bool):
+        # If the king is in check, it's not stalemate
+        if self.king_in_check(by_white):
+            return False
 
-    
+        # Try all legal moves for this player
+        for i, piece in enumerate(self.board.board_pieces):
+            if piece.startswith("w" if by_white else "b"):
+                valid_moves = self.board.get_valid_moves(i)
+                for move in valid_moves:
+                    if self.is_move_resolving_check(i, move, by_white):
+                        return False  # At least one legal move exists
+
+        return True  # No legal moves and not in check → stalemate
+
+    def is_draw_by_insufficient_material(self):
+        pieces = [p for p in self.board.board_pieces if p != "0"]
+
+        # If only kings remain
+        if all(p.endswith("K") for p in pieces):
+            return True
+
+        # King + Knight or King + Bishop
+        if len(pieces) == 2:
+            return any(p.endswith("K") for p in pieces) and (
+                any(p.endswith("N") or p.endswith("B") for p in pieces)
+            )
+
+        return False
+
