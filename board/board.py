@@ -2,11 +2,12 @@ import pygame
 from settings import ROWS, COLS, SQUARE_SIZE, MARGIN_X, MARGIN_Y, WHITE, BROWN
 from utils.tile_utils import tile_center_position
 from pieces import piece_images
+from board.util import util
 
 
 class Board:
     def __init__(self):
-        self.board_pieces = [
+        """self.board_pieces = [
             "bR", "bKnight", "bB", "bQ", "bK", "bB", "bKnight", "bR",
             "bP", "wP", "bP", "bP", "bP", "bP", "bP", "bP",
             "0",  "0",  "0",  "0",  "0",  "0",  "0",  "0",
@@ -15,7 +16,21 @@ class Board:
             "0",  "0",  "0",  "0",  "0",  "0",  "0",  "0",
             "wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP",
             "wR", "wKnight", "wB", "wQ", "wK", "wB", "wKnight", "wR"
+        ]"""
+
+        self.board_pieces = [
+            "0", "0", "0", "bQ", "bK", "0", "0", "0",
+            "0", "0", "0", "0", "0", "0", "0", "0",
+            "0",  "0",  "0",  "0",  "0",  "0",  "0",  "0",
+            "0",  "0",  "0",  "0",  "0",  "0",  "0",  "0",
+            "0",  "0",  "0",  "0",  "0",  "0",  "0",  "0",
+            "0",  "0",  "0",  "0",  "0",  "0",  "0",  "0",
+            "0", "0", "0", "0", "0", "0", "0", "0",
+            "0", "0", "0", "wQ", "wK", "0", "0", "0"
         ]
+
+        self.util = util(self)
+
 
         self.white_king_moved = False
         self.black_king_moved = False
@@ -32,6 +47,17 @@ class Board:
                 x = MARGIN_X + col * SQUARE_SIZE
                 y = MARGIN_Y + row * SQUARE_SIZE
                 pygame.draw.rect(surface, color, (x, y, SQUARE_SIZE, SQUARE_SIZE))
+
+        """put red highlight
+        if self.checked_king_index is not None:
+            row = self.checked_king_index // 8
+            col = self.checked_king_index % 8
+            x = MARGIN_X + col * SQUARE_SIZE
+            y = MARGIN_Y + row * SQUARE_SIZE
+
+            red_overlay = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE), pygame.SRCALPHA)
+            red_overlay.fill((255, 0, 0, 120))  # Red with transparency
+            surface.blit(red_overlay, (x, y))"""
 
 
 
@@ -56,7 +82,7 @@ class Board:
     def is_king(self, piece):
         return piece in ("wK", "bK")
 
-    def get_valid_moves(self, index):
+    def get_valid_moves(self, index, ignore_check=False):
         moves = []
         piece = self.board_pieces[index]
         ally_prefix = piece[0] if piece != "0" else None
@@ -148,6 +174,25 @@ class Board:
                 if self.board_pieces[1] == self.board_pieces[2] == self.board_pieces[3] == "0" and not self.black_rook_moved[1]:
                     moves.append(2)
 
+        
+        if (self.board_pieces[index].startswith("w")) and self.board_pieces[index] == "wK":
+            print(f"white player turn")
+            
+            var = self.util.get_threatened_tiles(by_white=False) # call the util object method 
+            print(f"threatened tiles: {var}")
+            moves = [m for m in moves if m not in var]
+
+        elif (self.board_pieces[index].startswith("b")) and self.board_pieces[index] == "bK":
+            print(f"black player turn")
+            
+            #var = self.get_threatened_tiles(by_white=True)
+            var = self.util.get_threatened_tiles(by_white=True)
+            print(f"threatened tiles: {var}")
+            moves = [m for m in moves if m not in var]
+
+
+
+    
         return moves
 
     def highlight_moves(self, move_indices, surface):
@@ -200,10 +245,3 @@ class Board:
         elif piece == "bP" and to_index // 8 == 7:
             self.board_pieces[to_index] = "bQ"
 
-    def retrieve_king_position(self):
- 
-        self.king_position[0] = self.board_pieces.index("wK")
-        self.king_position[1] = self.board_pieces.index("bK")
-        print(f"kings positions: {self.king_position}")
-        
-    

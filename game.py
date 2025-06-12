@@ -36,6 +36,7 @@ class Game:
 
             
             
+            
             self.board.draw_tiles(self.screen)
             
             
@@ -43,10 +44,12 @@ class Game:
             self.board.highlight_tile(self.input_handler.selected_index, self.screen)
             self.board.highlight_moves(self.input_handler.available_moves, self.screen)
             self.board.draw_pieces(self.screen)
-            pygame.display.set_caption(f"Chess - {'White' if self.white_turn else 'Black'}'s Turn")
-
             
-
+            
+            
+            
+            
+            pygame.display.set_caption(f"Chess - {'White' if self.white_turn else 'Black'}'s Turn")
             pygame.display.flip()
             self.clock.tick(FPS)
 
