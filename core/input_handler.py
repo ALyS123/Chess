@@ -14,11 +14,12 @@ class InputHandler:
         if event.type == pygame.MOUSEBUTTONDOWN:
             index = self.get_tile_index(event.pos)
 
-            print(f"index = {index}")#for debugging reasons 
+            #print(f"index = {index}")#for debugging reasons 
+
             if index is None:
                 return
 
-            turn_prefix = "b" if self.game.white_turn else "w"
+            turn_prefix = "w" if self.game.white_turn else "b"
 
             if self.selected_index is None:
                 if self.board.board_pieces[index].startswith(turn_prefix):
@@ -26,8 +27,8 @@ class InputHandler:
                    
                     self.selected_index = index
                     self.available_moves = self.board.get_valid_moves(index)
-                    print(f"First click: {self.selected_index}")
-                    print(f"Available moves: {self.available_moves}")
+                    """print(f"First click: {self.selected_index}")
+                    print(f"Available moves: {self.available_moves}")"""
 
             else:
                 if index == self.selected_index:
@@ -45,8 +46,8 @@ class InputHandler:
                         self.selected_index = index
                         self.available_moves = self.board.get_valid_moves(index)
 
-                        print(f"Selected new piece: {self.selected_index}")
-                        print(f"Available moves: {self.available_moves}")
+                        """print(f"Selected new piece: {self.selected_index}")
+                        print(f"Available moves: {self.available_moves}")"""
 
 
     def get_tile_index(self, position):

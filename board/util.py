@@ -1,5 +1,6 @@
-import pygame
+#board/util.py
 
+import pygame
 
 class util:
     def __init__(self, board):
@@ -77,3 +78,20 @@ class util:
                     add(r * 8 + c)
 
         return moves
+    
+
+    def king_in_check(self, by_white: bool):
+        if by_white:
+            king_index = self.board.board_pieces.index("wK")
+            if king_index in self.get_threatened_tiles(not by_white):
+                return True
+            else:
+                return False
+
+        elif by_white is False:
+            king_index = self.board.board_pieces.index("bK")
+            if king_index in self.get_threatened_tiles(not by_white):
+                return True
+            else:
+                return False
+        

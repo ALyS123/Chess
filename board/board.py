@@ -1,3 +1,5 @@
+#board/board.py
+
 import pygame
 from settings import ROWS, COLS, SQUARE_SIZE, MARGIN_X, MARGIN_Y, WHITE, BROWN
 from utils.tile_utils import tile_center_position
@@ -40,7 +42,7 @@ class Board:
         self.king_position = [None, None]  # [index of white king, index of black king]
 
 
-    def draw_tiles(self, surface):
+    def draw_tiles(self, surface, white_turn):
         for row in range(ROWS):
             for col in range(COLS):
                 color = WHITE if (row + col) % 2 == 0 else BROWN
@@ -48,16 +50,22 @@ class Board:
                 y = MARGIN_Y + row * SQUARE_SIZE
                 pygame.draw.rect(surface, color, (x, y, SQUARE_SIZE, SQUARE_SIZE))
 
-        """put red highlight
-        if self.checked_king_index is not None:
-            row = self.checked_king_index // 8
-            col = self.checked_king_index % 8
-            x = MARGIN_X + col * SQUARE_SIZE
-            y = MARGIN_Y + row * SQUARE_SIZE
 
-            red_overlay = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE), pygame.SRCALPHA)
-            red_overlay.fill((255, 0, 0, 120))  # Red with transparency
-            surface.blit(red_overlay, (x, y))"""
+        if self.util.king_in_check(white_turn):
+            king_piece = "wK" if white_turn else "bK"
+            try:
+                king_index = self.board_pieces.index(king_piece)
+                row = king_index // 8
+                col = king_index % 8
+                x = MARGIN_X + col * SQUARE_SIZE
+                y = MARGIN_Y + row * SQUARE_SIZE
+
+                red_overlay = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE), pygame.SRCALPHA)
+                red_overlay.fill((255, 0, 0, 120))  # Red with transparency
+                surface.blit(red_overlay, (x, y))
+            except ValueError:
+                print("King piece not found on the board.")
+                pass  # King not found — avoid crashing
 
 
 
@@ -176,16 +184,17 @@ class Board:
 
         
         if (self.board_pieces[index].startswith("w")) and self.board_pieces[index] == "wK":
-            print(f"white player turn")
-            
-            var = self.util.get_threatened_tiles(by_white=False) # call the util object method 
+            #print(f"white player turn")
+            # by_white is True here, but we want to check what black can threaten so we pass by_white=False
+            var = self.util.get_threatened_tiles(by_white=False) # call the util object method
+
             print(f"threatened tiles: {var}")
-            moves = [m for m in moves if m not in var]
+            moves = [m for m in moves if m not in var] # removes the threatened tiles from the moves list
 
         elif (self.board_pieces[index].startswith("b")) and self.board_pieces[index] == "bK":
-            print(f"black player turn")
+            #print(f"black player turn")
             
-            #var = self.get_threatened_tiles(by_white=True)
+            # by_white is False here, but we want to check what white can threaten so we pass by_white=True
             var = self.util.get_threatened_tiles(by_white=True)
             print(f"threatened tiles: {var}")
             moves = [m for m in moves if m not in var]

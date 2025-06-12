@@ -14,7 +14,7 @@ class Game:
         pygame.display.set_caption("Chess")
         self.clock = pygame.time.Clock()
         self.running = True
-        self.white_turn = True 
+        self.white_turn = True
 
         self.board = Board()
         self.input_handler = InputHandler(self.board, self)
@@ -37,7 +37,7 @@ class Game:
             
             
             
-            self.board.draw_tiles(self.screen)
+            self.board.draw_tiles(self.screen, self.white_turn)
             
             
 
