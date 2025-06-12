@@ -39,7 +39,11 @@ class Game:
 
             # use this for locking only the king will be played or a piece that can move the king out of check
             self.king_in_check = self.util.king_in_check(self.white_turn)  # True if the king is in check False if not 
-            
+            # Check for checkmate
+            if self.util.is_checkmate(self.white_turn):
+                print(f"Checkmate! {'Black' if self.white_turn else 'White'} wins.")
+                self.running = False
+
             
             self.board.draw_tiles(self.screen)# draws the tiles of the board
             self.board.draw_red_tile(self.screen, self.white_turn)# draws the red tile if the king is in check

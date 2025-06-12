@@ -111,3 +111,20 @@ class util:
         self.board.board_pieces[to_index] = original_to
 
         return not still_in_check
+    
+    def is_checkmate(self, by_white: bool):
+        # If not in check, it can't be checkmate
+        if not self.king_in_check(by_white):
+            return False
+
+        for i, piece in enumerate(self.board.board_pieces):
+            if piece.startswith("w" if by_white else "b"):
+                valid_moves = self.board.get_valid_moves(i)
+                for move in valid_moves:
+                    if self.is_move_resolving_check(i, move, by_white):
+                        return False  # At least one move saves the king
+
+        return True  # No move can resolve the check → checkmate
+    
+
+    
