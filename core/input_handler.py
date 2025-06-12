@@ -23,12 +23,18 @@ class InputHandler:
 
             if self.selected_index is None:
                 if self.board.board_pieces[index].startswith(turn_prefix):
-                    # First click
-                   
                     self.selected_index = index
-                    self.available_moves = self.board.get_valid_moves(index)
-                    """print(f"First click: {self.selected_index}")
-                    print(f"Available moves: {self.available_moves}")"""
+                    valid_moves = self.board.get_valid_moves(index)
+
+                    # If the king is in check, filter moves to those that resolve it
+                    if self.game.king_in_check:
+                        valid_moves = [
+                            move for move in valid_moves
+                            if self.board.util.is_move_resolving_check(self.selected_index, move, self.game.white_turn)
+                        ]
+
+                    self.available_moves = valid_moves
+
 
             else:
                 if index == self.selected_index:
@@ -44,10 +50,16 @@ class InputHandler:
                 else:
                     if self.board.board_pieces[index].startswith(turn_prefix):
                         self.selected_index = index
-                        self.available_moves = self.board.get_valid_moves(index)
+                        valid_moves = self.board.get_valid_moves(index)
 
-                        """print(f"Selected new piece: {self.selected_index}")
-                        print(f"Available moves: {self.available_moves}")"""
+                        if self.game.king_in_check:
+                            valid_moves = [
+                                move for move in valid_moves
+                                if self.board.util.is_move_resolving_check(self.selected_index, move, self.game.white_turn)
+                            ]
+
+                        self.available_moves = valid_moves
+
 
 
     def get_tile_index(self, position):

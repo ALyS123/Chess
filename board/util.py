@@ -95,3 +95,19 @@ class util:
             else:
                 return False
         
+
+    def is_move_resolving_check(self, from_index, to_index, by_white: bool):
+        # Simulate move
+        original_from = self.board.board_pieces[from_index]
+        original_to = self.board.board_pieces[to_index]
+
+        self.board.board_pieces[to_index] = original_from
+        self.board.board_pieces[from_index] = "0"
+
+        still_in_check = self.king_in_check(by_white)
+
+        # Revert move
+        self.board.board_pieces[from_index] = original_from
+        self.board.board_pieces[to_index] = original_to
+
+        return not still_in_check
