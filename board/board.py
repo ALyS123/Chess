@@ -4,7 +4,7 @@ import pygame
 from settings import ROWS, COLS, SQUARE_SIZE, MARGIN_X, MARGIN_Y, WHITE, BROWN
 from utils.tile_utils import tile_center_position
 from pieces import piece_images
-from board.util import util
+from board.rule_engine import GameRules
 from settings import BOARD_SIZE
 
 class Board:
@@ -20,7 +20,7 @@ class Board:
             "wR", "wKnight", "wB", "wQ", "wK", "wB", "wKnight", "wR"
         ]
 
-        self.util = util(self)
+        self.game_rules = GameRules(self)
 
 
         self.white_king_moved = False
@@ -69,7 +69,7 @@ class Board:
 
     
     def draw_red_tile(self, surface, white_turn):
-        if self.util.king_in_check(white_turn):
+        if self.game_rules.king_in_check(white_turn):
             king_piece = "wK" if white_turn else "bK"
             try:
                 king_index = self.board_pieces.index(king_piece)
@@ -202,7 +202,7 @@ class Board:
         if (self.board_pieces[index].startswith("w")) and self.board_pieces[index] == "wK":
             # by_white is True here, but we want to check what black can threaten so we pass by_white=False
 
-            var = self.util.get_threatened_tiles(by_white=False) # call the util object method
+            var = self.game_rules.get_threatened_tiles(by_white=False) # call the game_rules object method
             # var stores true / false.
 
             #print(f"threatened tiles: {var}")
@@ -211,7 +211,7 @@ class Board:
         elif (self.board_pieces[index].startswith("b")) and self.board_pieces[index] == "bK":
             # by_white is False here, but we want to check what white can threaten so we pass by_white=True
 
-            var = self.util.get_threatened_tiles(by_white=True)
+            var = self.game_rules.get_threatened_tiles(by_white=True)
 
             #print(f"threatened tiles: {var}")
             moves = [m for m in moves if m not in var]

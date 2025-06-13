@@ -1,4 +1,4 @@
-# core/input_handler.py
+# controllers/input_handler.py
 
 import pygame
 from settings import MARGIN_X, MARGIN_Y, BOARD_SIZE, SQUARE_SIZE, COLS
@@ -29,7 +29,7 @@ class InputHandler:
                     # If the king is in check, filter moves to those that resolve it
                     valid_moves = [
                         move for move in valid_moves
-                        if self.board.util.is_move_resolving_check(self.selected_index, move, self.game.white_turn)
+                        if self.board.game_rules.is_move_resolving_check(self.selected_index, move, self.game.white_turn)
                     ]
 
 
@@ -55,7 +55,7 @@ class InputHandler:
                         
                         valid_moves = [
                             move for move in valid_moves
-                            if self.board.util.is_move_resolving_check(self.selected_index, move, self.game.white_turn)
+                            if self.board.game_rules.is_move_resolving_check(self.selected_index, move, self.game.white_turn)
                         ]
 
                         self.available_moves = valid_moves

@@ -3,10 +3,8 @@
 import pygame
 from settings import WINDOW_WIDTH, WINDOW_HEIGHT, BG_COLOR, FPS
 from board.board import Board
-from core.input_handler import InputHandler
-from board.util import util
-
-
+from controllers.input_handler import InputHandler
+from board.rule_engine import GameRules
 
 class Game:
     def __init__(self):
@@ -20,7 +18,7 @@ class Game:
 
 
         self.board = Board()
-        self.util = util(self.board)  # Initialize util with the board reference
+        self.game_rules = GameRules(self.board)  # Initialize game_rules with the board reference
         self.input_handler = InputHandler(self.board, self)
 
 
@@ -38,17 +36,17 @@ class Game:
 
 
             # use this for locking only the king will be played or a piece that can move the king out of check
-            self.king_in_check = self.util.king_in_check(self.white_turn)  # True if the king is in check False if not 
+            self.king_in_check = self.game_rules.king_in_check(self.white_turn)  # True if the king is in check False if not 
             # Check for checkmate
-            if self.util.is_checkmate(self.white_turn):
+            if self.game_rules.is_checkmate(self.white_turn):
                 print(f"Checkmate! {'Black' if self.white_turn else 'White'} wins.")
                 self.running = False
             # Check for stalemate
-            elif self.util.is_stalemate(self.white_turn):
+            elif self.game_rules.is_stalemate(self.white_turn):
                 print("Stalemate! It's a draw.")
                 self.running = False
             # check for draw
-            elif self.util.is_draw_by_insufficient_material():
+            elif self.game_rules.is_draw_by_insufficient_material():
                 print("Draw! Insufficient material to checkmate.")
                 self.running = False
 

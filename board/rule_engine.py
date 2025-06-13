@@ -1,8 +1,6 @@
-# board/util.py
+# board/rule_engine.py
 
-import pygame
-
-class util:
+class GameRules:
     def __init__(self, board):
         self.board = board # <-- reference to Board to access board_pieces
 

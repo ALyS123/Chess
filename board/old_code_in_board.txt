@@ -4,4 +4,4 @@
                 color = WHITE if (row + col) % 2 == 0 else BROWN
                 x = MARGIN_X + col * SQUARE_SIZE
                 y = MARGIN_Y + row * SQUARE_SIZE
-                pygame.draw.rect(surface, color, (x, y, SQUARE_SIZE, SQUARE_SIZE))
+                pygame.draw.rect(surface, color, (x, y, SQUARE_SIZE, SQUARE_SIZE))o
