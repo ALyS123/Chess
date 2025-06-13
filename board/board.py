@@ -7,6 +7,7 @@ from pieces import piece_images
 from board.rule_engine import GameRules
 from settings import BOARD_SIZE
 
+
 class Board:
     def __init__(self):
         self.board_pieces = [
@@ -107,116 +108,44 @@ class Board:
         return piece in ("wK", "bK")
 
     def get_valid_moves(self, index, ignore_check=False):
-        moves = []
         piece = self.board_pieces[index]
-        ally_prefix = piece[0] if piece != "0" else None
+        if piece == "0":
+            return []
 
-        def add_move(target_index):
-            target_piece = self.board_pieces[target_index]
-            if target_piece == "0":
-                moves.append(target_index)
-            elif not target_piece.startswith(ally_prefix) and not self.is_king(target_piece):
-                moves.append(target_index)
+        color = piece[0]
 
-        if piece == "wP":
-            one_step = index - 8
-            if 0 <= one_step < 64 and self.board_pieces[one_step] == "0":
-                moves.append(one_step)
-                if 48 <= index <= 55:
-                    two_step = index - 16
-                    if self.board_pieces[two_step] == "0":
-                        moves.append(two_step)
-            for offset in (-9, -7):
-                target = index + offset
-                if 0 <= target < 64 and abs((index // 8) - (target // 8)) == 1:
-                    if self.board_pieces[target].startswith("b") and not self.is_king(self.board_pieces[target]):
-                        moves.append(target)
+        from pieces.pawn import Pawn
+        from pieces.knight import Knight
+        from pieces.bishop import Bishop
+        from pieces.rook import Rook
+        from pieces.queen import Queen
+        from pieces.king import King
 
-        elif piece == "bP":
-            one_step = index + 8
-            if 0 <= one_step < 64 and self.board_pieces[one_step] == "0":
-                moves.append(one_step)
-                if 8 <= index <= 15:
-                    two_step = index + 16
-                    if self.board_pieces[two_step] == "0":
-                        moves.append(two_step)
-            for offset in (7, 9):
-                target = index + offset
-                if 0 <= target < 64 and abs((index // 8) - (target // 8)) == 1:
-                    if self.board_pieces[target].startswith("w") and not self.is_king(self.board_pieces[target]):
-                        moves.append(target)
+        piece_type = piece[1:]
+        mapping = {
+            "P": Pawn,
+            "Knight": Knight,
+            "B": Bishop,
+            "R": Rook,
+            "Q": Queen,
+            "K": King,
+        }
 
-        elif piece in ("wKnight", "bKnight"):
-            row, col = divmod(index, 8)
-            knight_moves = [(-2, -1), (-2, 1), (-1, -2), (-1, 2),
-                            (1, -2), (1, 2), (2, -1), (2, 1)]
-            for dr, dc in knight_moves:
-                r, c = row + dr, col + dc
-                if 0 <= r < 8 and 0 <= c < 8:
-                    add_move(r * 8 + c)
+        PieceClass = mapping.get(piece_type)
+        if not PieceClass:
+            return []
 
-        elif piece in ("wR", "bR", "wB", "bB", "wQ", "bQ"):
-            directions = []
-            if piece[1] == "R" or piece[1] == "Q":
-                directions += [(-1, 0), (1, 0), (0, -1), (0, 1)]
-            if piece[1] == "B" or piece[1] == "Q":
-                directions += [(-1, -1), (-1, 1), (1, -1), (1, 1)]
-            row, col = divmod(index, 8)
-            for dr, dc in directions:
-                r, c = row + dr, col + dc
-                while 0 <= r < 8 and 0 <= c < 8:
-                    target_index = r * 8 + c
-                    target_piece = self.board_pieces[target_index]
-                    if target_piece == "0":
-                        moves.append(target_index)
-                    elif not target_piece.startswith(ally_prefix) and not self.is_king(target_piece):
-                        moves.append(target_index)
-                        break
-                    else:
-                        break
-                    r += dr
-                    c += dc
+        handler = PieceClass(color)
+        moves = handler.get_valid_moves(index, self)
 
-        elif piece in ("wK", "bK"):
-            row, col = divmod(index, 8)
-            king_moves = [(-1, -1), (-1, 0), (-1, 1),
-                          (0, -1),          (0, 1),
-                          (1, -1), (1, 0),  (1, 1)]
-            for dr, dc in king_moves:
-                r, c = row + dr, col + dc
-                if 0 <= r < 8 and 0 <= c < 8:
-                    add_move(r * 8 + c)
-
-            if piece == "wK" and not self.white_king_moved:
-                if self.board_pieces[61] == self.board_pieces[62] == "0" and not self.white_rook_moved[0]:
-                    moves.append(62)
-                if self.board_pieces[59] == self.board_pieces[58] == self.board_pieces[57] == "0" and not self.white_rook_moved[1]:
-                    moves.append(58)
-            elif piece == "bK" and not self.black_king_moved:
-                if self.board_pieces[5] == self.board_pieces[6] == "0" and not self.black_rook_moved[0]:
-                    moves.append(6)
-                if self.board_pieces[1] == self.board_pieces[2] == self.board_pieces[3] == "0" and not self.black_rook_moved[1]:
-                    moves.append(2)
-
-        
-        if (self.board_pieces[index].startswith("w")) and self.board_pieces[index] == "wK":
-            # by_white is True here, but we want to check what black can threaten so we pass by_white=False
-
-            var = self.game_rules.get_threatened_tiles(by_white=False) # call the game_rules object method
-            # var stores true / false.
-
-            #print(f"threatened tiles: {var}")
-            moves = [m for m in moves if m not in var] # removes the threatened tiles from the moves list
-
-        elif (self.board_pieces[index].startswith("b")) and self.board_pieces[index] == "bK":
-            # by_white is False here, but we want to check what white can threaten so we pass by_white=True
-
-            var = self.game_rules.get_threatened_tiles(by_white=True)
-
-            #print(f"threatened tiles: {var}")
-            moves = [m for m in moves if m not in var]
+        # If the selected piece is a king, remove moves that land on threatened tiles
+        if piece == "wK":
+            moves = [m for m in moves if m not in self.game_rules.get_threatened_tiles(by_white=False)]
+        elif piece == "bK":
+            moves = [m for m in moves if m not in self.game_rules.get_threatened_tiles(by_white=True)]
 
         return moves
+
 
     def highlight_moves(self, move_indices, surface):
         from settings import HIGHLIGHT
