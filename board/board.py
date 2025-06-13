@@ -5,7 +5,7 @@ from settings import ROWS, COLS, SQUARE_SIZE, MARGIN_X, MARGIN_Y, WHITE, BROWN
 from utils.tile_utils import tile_center_position
 from pieces import piece_images
 from board.util import util
-
+from settings import BOARD_SIZE
 
 class Board:
     def __init__(self):
@@ -31,13 +31,41 @@ class Board:
         self.king_position = [None, None]  # [index of white king, index of black king]
 
 
+    """def draw_tiles(self, surface):
+        for row in range(ROWS):
+            for col in range(COLS):
+                color = WHITE if (row + col) % 2 == 0 else BROWN
+                x = MARGIN_X + col * SQUARE_SIZE
+                y = MARGIN_Y + row * SQUARE_SIZE
+                pygame.draw.rect(surface, color, (x, y, SQUARE_SIZE, SQUARE_SIZE))"""
+    
     def draw_tiles(self, surface):
+        # Draw the chess squares (your original code)
         for row in range(ROWS):
             for col in range(COLS):
                 color = WHITE if (row + col) % 2 == 0 else BROWN
                 x = MARGIN_X + col * SQUARE_SIZE
                 y = MARGIN_Y + row * SQUARE_SIZE
                 pygame.draw.rect(surface, color, (x, y, SQUARE_SIZE, SQUARE_SIZE))
+        
+        # Draw algebraic notation (letters and numbers)
+        font = pygame.font.Font(None, 24)
+        
+        # Draw file letters (a-h) at the bottom
+        for col in range(COLS):
+            letter = chr(ord('a') + col)
+            text = font.render(letter, True, (200, 200, 200))
+            x = MARGIN_X + col * SQUARE_SIZE + SQUARE_SIZE // 2 - text.get_width() // 2
+            y = MARGIN_Y + BOARD_SIZE + 5
+            surface.blit(text, (x, y))
+        
+        # Draw rank numbers (1-8) on the right side
+        for row in range(ROWS):
+            number = str(8 - row)  # Chess ranks go from 8 at top to 1 at bottom
+            text = font.render(number, True, (200, 200, 200))
+            x = MARGIN_X + BOARD_SIZE + 5
+            y = MARGIN_Y + row * SQUARE_SIZE + SQUARE_SIZE // 2 - text.get_height() // 2
+            surface.blit(text, (x, y))
 
     
     def draw_red_tile(self, surface, white_turn):

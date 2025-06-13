@@ -1,0 +1,7 @@
+    def draw_tiles(self, surface):
+        for row in range(ROWS):
+            for col in range(COLS):
+                color = WHITE if (row + col) % 2 == 0 else BROWN
+                x = MARGIN_X + col * SQUARE_SIZE
+                y = MARGIN_Y + row * SQUARE_SIZE
+                pygame.draw.rect(surface, color, (x, y, SQUARE_SIZE, SQUARE_SIZE))
