@@ -5,6 +5,8 @@ from settings import WINDOW_WIDTH, WINDOW_HEIGHT, BG_COLOR, FPS
 from board.board import Board
 from controllers.input_handler import InputHandler
 from board.rule_engine import GameRules
+from scenes.result_screen import ResultScreen
+
 
 class Game:
     def __init__(self):
@@ -39,16 +41,43 @@ class Game:
             self.king_in_check = self.game_rules.king_in_check(self.white_turn)  # True if the king is in check False if not 
             # Check for checkmate
             if self.game_rules.is_checkmate(self.white_turn):
-                print(f"Checkmate! {'Black' if self.white_turn else 'White'} wins.")
-                self.running = False
-            # Check for stalemate
+                message = f"{'Black' if self.white_turn else 'White'} Wins by Checkmate!"
+                result = ResultScreen(self, message).run()
+                if result == "menu":
+                    self.running = False
+                    from scenes.menu import Menu
+                    from game import Game
+                    Menu(self).run()
+                    Game().run()
+                    return  # <- This prevents drawing to a closed screen
+                else:
+                    self.running = False
+
             elif self.game_rules.is_stalemate(self.white_turn):
-                print("Stalemate! It's a draw.")
-                self.running = False
-            # check for draw
+                result = ResultScreen(self, "Stalemate! It's a draw.").run()
+                if result == "menu":
+                    self.running = False
+                    from scenes.menu import Menu
+                    from game import Game
+                    Menu(self).run()
+                    Game().run()
+                    return  # <- This prevents drawing to a closed screen
+                else:
+                    self.running = False
+
             elif self.game_rules.is_draw_by_insufficient_material():
-                print("Draw! Insufficient material to checkmate.")
-                self.running = False
+                result = ResultScreen(self, "Draw! Insufficient material.").run()
+                if result == "menu":
+                    self.running = False
+                    from scenes.menu import Menu
+                    from game import Game
+                    Menu(self).run()
+                    Game().run()
+                    return  # <- This prevents drawing to a closed screen
+                else:
+                    self.running = False
+
+
 
 
             

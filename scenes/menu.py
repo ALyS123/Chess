@@ -3,6 +3,7 @@ import sys
 from settings import WINDOW_WIDTH, WINDOW_HEIGHT, BG_COLOR
 import random
 import math
+import os
 
 class Menu:
     def __init__(self, game):
@@ -15,8 +16,12 @@ class Menu:
         self.subtitle_font = pygame.font.SysFont("Arial", 24)
 
         # Load and properly scale background image
-        self.bg_image = pygame.image.load("assets/images/menu_bg0.png")
+        #self.bg_image = pygame.image.load("assets/images/menu_bg0.png")
         
+        base_path = getattr(sys, '_MEIPASS', os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
+        image_path = os.path.join(base_path, "assets/images/menu_bg0.png")
+        self.bg_image = pygame.image.load(image_path)
+
         # Calculate scaling to cover the entire window while maintaining aspect ratio
         img_width, img_height = self.bg_image.get_size()
         scale_x = WINDOW_WIDTH / img_width
