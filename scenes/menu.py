@@ -72,7 +72,7 @@ class Menu:
         self.subtitle_text = "The Ultimate Strategy Game"
 
         # Button configuration
-        button_texts = ["1v1 (Offline)", "1v1 (Online) Coming Soon", "1 v Bot Coming Soon", "Quit"]
+        button_texts = ["1v1 (Offline)", "Local Host" , "1v1 (Online) Coming Soon", "1 v Bot Coming Soon", "Quit"]
         self.buttons = []
 
         # Calculate button layout - make buttons wider for longer text
@@ -82,7 +82,7 @@ class Menu:
         start_y = (WINDOW_HEIGHT - total_height) // 2 + 100
 
         for i, text in enumerate(button_texts):
-            enabled = text == "1v1 (Offline)" or text == "Quit"
+            enabled = text == "1v1 (Offline)" or text == "Local Host" or text == "Quit"
             x = (WINDOW_WIDTH - button_width) // 2
             y = start_y + i * (button_height + 20)
 
@@ -306,10 +306,16 @@ class Menu:
                         if button["rect"].collidepoint(event.pos) and button["enabled"]:
                             if button["text"] == "1v1 (Offline)":
                                 self.fade_out()
-                                return button["text"]
+                                return "offline"
+                            
+                            elif button["text"] == "Local Host":
+                                self.fade_out()
+                                return "local_host"
+                            
                             elif button["text"] == "Quit":
                                 pygame.quit()
                                 sys.exit()
+                                
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         pygame.quit()

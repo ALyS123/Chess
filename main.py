@@ -1,14 +1,15 @@
 # main.py
 
-from scenes.menu import Menu
 from game import Game
+from scenes.menu import Menu
 
 if __name__ == "__main__":
-
+    import pygame
+    pygame.init()
 
     game_instance = Game()
     menu = Menu(game_instance)
-    mode = menu.run()  # mode will be "1v1" or "AI"
+    mode = menu.run()
 
-    # You can now pass `mode` into the Game class if needed
-    game_instance.run()
+    if mode in ("offline", "local_host"):
+        Game(mode=mode).run()

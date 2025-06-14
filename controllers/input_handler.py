@@ -43,6 +43,8 @@ class InputHandler:
 
                 elif index in self.available_moves:
                     self.board.move_piece(self.selected_index, index)
+                    if self.game.is_online:
+                        self.game.send_move(self.selected_index, index)
                     self.game.white_turn = not self.game.white_turn
                     self.selected_index = None
                     self.available_moves = []
