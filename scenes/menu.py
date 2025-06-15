@@ -4,6 +4,7 @@ from settings import WINDOW_WIDTH, WINDOW_HEIGHT, BG_COLOR
 import random
 import math
 import os
+from scenes.local_host_menu import LocalHostMenu
 
 class Menu:
     def __init__(self, game):
@@ -16,8 +17,6 @@ class Menu:
         self.subtitle_font = pygame.font.SysFont("Arial", 24)
 
         # Load and properly scale background image
-        #self.bg_image = pygame.image.load("assets/images/menu_bg0.png")
-        
         base_path = getattr(sys, '_MEIPASS', os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
         image_path = os.path.join(base_path, "assets/images/menu_bg0.png")
         self.bg_image = pygame.image.load(image_path)
@@ -36,35 +35,36 @@ class Menu:
         self.bg_x = (WINDOW_WIDTH - new_width) // 2
         self.bg_y = (WINDOW_HEIGHT - new_height) // 2
 
-        # Create gradient overlay for better text readability
+        # Create warm wood-toned overlay for better text readability
         self.bg_overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.SRCALPHA)
         for y in range(WINDOW_HEIGHT):
-            alpha = int(80 * (y / WINDOW_HEIGHT))  # Gradient from transparent to semi-transparent
-            pygame.draw.line(self.bg_overlay, (0, 0, 0, alpha), (0, y), (WINDOW_WIDTH, y))
+            alpha = int(60 * (y / WINDOW_HEIGHT))  # Gradient from transparent to semi-transparent
+            pygame.draw.line(self.bg_overlay, (20, 15, 10, alpha), (0, y), (WINDOW_WIDTH, y))
 
-        # Enhanced color palette
-        self.primary_color = (0, 255, 255)      # Cyan
-        self.secondary_color = (255, 20, 147)   # Deep Pink
-        self.accent_color = (255, 215, 0)       # Gold
-        self.bg_color = (20, 20, 40)
-        self.hover_color = (100, 255, 255)
-        self.neon_purple = (138, 43, 226)
-        self.neon_green = (50, 205, 50)
+        # Warm wood/brown color palette
+        self.primary_color = (180, 140, 100)     # Golden brown
+        self.secondary_color = (150, 110, 70)    # Medium brown
+        self.accent_color = (220, 180, 120)      # Light golden
+        self.bg_color = (40, 30, 20)            # Dark brown
+        self.hover_color = (200, 160, 110)      # Warm hover
+        self.text_color = (240, 220, 180)       # Cream
+        self.shadow_color = (20, 15, 10)        # Dark shadow
 
         self.time = 0
         self.particles = []
         self.selected_button = None
 
-        # Create more dynamic particles
-        for _ in range(80):
+        # Create warm floating dust particles instead of neon ones
+        for _ in range(40):
             self.particles.append({
                 'x': random.randint(0, WINDOW_WIDTH),
                 'y': random.randint(0, WINDOW_HEIGHT),
-                'speed': random.uniform(0.3, 1.5),
-                'size': random.randint(1, 4),
-                'color': random.choice([self.primary_color, self.secondary_color, self.accent_color, self.neon_purple, self.neon_green]),
+                'speed': random.uniform(0.2, 0.8),
+                'size': random.randint(1, 3),
+                'color': random.choice([self.primary_color, self.secondary_color, self.accent_color]),
                 'pulse_offset': random.uniform(0, math.pi * 2),
-                'drift_speed': random.uniform(0.1, 0.5)
+                'drift_speed': random.uniform(0.05, 0.3),
+                'alpha': random.randint(30, 80)
             })
 
         # Game title
@@ -72,7 +72,7 @@ class Menu:
         self.subtitle_text = "The Ultimate Strategy Game"
 
         # Button configuration
-        button_texts = ["1v1 (Offline)", "Local Host" , "1v1 (Online) Coming Soon", "1 v Bot Coming Soon", "Quit"]
+        button_texts = ["1v1 (Offline)", "Local Host", "1v1 (Online) Coming Soon", "1 v Bot Coming Soon", "Quit"]
         self.buttons = []
 
         # Calculate button layout - make buttons wider for longer text
@@ -94,38 +94,29 @@ class Menu:
                 "glow_intensity": 0,
                 "pulse": 0,
                 "original_y": y,
-                "scan_line": 0
+                "animation": 0
             }
             self.buttons.append(button_data)
 
-    def draw_glitch_text(self, text, font, x, y, main_color, offset=2):
-        """Draw text with cyberpunk glitch effect"""
-        # Draw background layers for glitch effect
-        glitch_colors = [(255, 0, 0, 100), (0, 255, 0, 100), (0, 0, 255, 100)]
-        offsets = [(-offset, -1), (offset, 1), (-1, offset)]
+    def draw_wood_grain_border(self, rect, color, thickness=3):
+        """Draw a wooden-style border with subtle texture"""
+        # Main border
+        pygame.draw.rect(self.screen, color, rect, thickness, border_radius=8)
         
-        for i, (color, (dx, dy)) in enumerate(zip(glitch_colors, offsets)):
-            if random.random() > 0.7:  # Random glitch appearance
-                glitch_surface = font.render(text, True, color[:3])
-                glitch_surface.set_alpha(color[3])
-                self.screen.blit(glitch_surface, (x + dx, y + dy))
-        
-        # Draw main text
-        main_surface = font.render(text, True, main_color)
-        self.screen.blit(main_surface, (x, y))
+        # Inner highlight for wood effect
+        inner_rect = rect.inflate(-thickness*2, -thickness*2)
+        highlight_color = tuple(min(255, c + 30) for c in color)
+        pygame.draw.rect(self.screen, highlight_color, inner_rect, 1, border_radius=6)
 
-    def draw_neon_border(self, rect, color, thickness=3, glow_size=10):
-        """Draw a glowing neon border"""
-        # Outer glow
+    def draw_warm_glow(self, rect, color, intensity=1.0):
+        """Draw a warm, subtle glow effect"""
+        glow_size = int(15 * intensity)
         for i in range(glow_size, 0, -1):
-            alpha = int(50 * (i / glow_size))
+            alpha = int(20 * intensity * (i / glow_size))
             glow_rect = rect.inflate(i * 2, i * 2)
             glow_surface = pygame.Surface((glow_rect.width, glow_rect.height), pygame.SRCALPHA)
-            pygame.draw.rect(glow_surface, (*color, alpha), (0, 0, glow_rect.width, glow_rect.height), border_radius=15)
+            pygame.draw.rect(glow_surface, (*color, alpha), (0, 0, glow_rect.width, glow_rect.height), border_radius=12)
             self.screen.blit(glow_surface, glow_rect.topleft)
-        
-        # Main border
-        pygame.draw.rect(self.screen, color, rect, thickness, border_radius=10)
 
     def run(self):
         while True:
@@ -138,7 +129,7 @@ class Menu:
             self.screen.blit(self.bg_image, (self.bg_x, self.bg_y))
             self.screen.blit(self.bg_overlay, (0, 0))
 
-            # Update and draw particles
+            # Update and draw warm dust particles
             for particle in self.particles:
                 # Update position
                 particle['y'] -= particle['speed']
@@ -146,37 +137,39 @@ class Menu:
                     particle['y'] = WINDOW_HEIGHT + 10
                     particle['x'] = random.randint(0, WINDOW_WIDTH)
                 
-                # Add drift movement
-                particle['x'] += math.sin(self.time * particle['drift_speed'] + particle['pulse_offset']) * 0.5
+                # Add gentle drift movement
+                particle['x'] += math.sin(self.time * particle['drift_speed'] + particle['pulse_offset']) * 0.3
                 
-                # Pulse effect
-                pulse = math.sin(self.time * 3 + particle['pulse_offset']) * 0.5 + 0.5
-                current_size = particle['size'] * (0.5 + pulse * 0.5)
+                # Gentle pulse effect
+                pulse = math.sin(self.time * 2 + particle['pulse_offset']) * 0.3 + 0.7
+                current_size = particle['size'] * pulse
                 
-                # Draw particle with glow
-                glow_size = int(current_size + 3)
-                glow_surface = pygame.Surface((glow_size * 4, glow_size * 4), pygame.SRCALPHA)
-                
-                # Outer glow
-                pygame.draw.circle(glow_surface, (*particle['color'], 30), 
-                                 (glow_size * 2, glow_size * 2), glow_size * 2)
-                # Inner bright core
-                pygame.draw.circle(glow_surface, (*particle['color'], int(200 * pulse)), 
-                                 (glow_size * 2, glow_size * 2), int(current_size))
-                
-                self.screen.blit(glow_surface, (particle['x'] - glow_size * 2, particle['y'] - glow_size * 2))
+                # Draw particle with warm glow
+                if current_size > 0:
+                    particle_surface = pygame.Surface((int(current_size * 4), int(current_size * 4)), pygame.SRCALPHA)
+                    center = (int(current_size * 2), int(current_size * 2))
+                    
+                    # Soft outer glow
+                    pygame.draw.circle(particle_surface, (*particle['color'], particle['alpha'] // 3), 
+                                     center, int(current_size * 2))
+                    # Bright center
+                    pygame.draw.circle(particle_surface, (*particle['color'], particle['alpha']), 
+                                     center, max(1, int(current_size)))
+                    
+                    self.screen.blit(particle_surface, (particle['x'] - current_size * 2, particle['y'] - current_size * 2))
 
-            # Draw title
+            # Draw title with warm glow
             title_y = 80
-            title_surface = self.title_font.render(self.title_text, True, self.primary_color)
+            title_surface = self.title_font.render(self.title_text, True, self.text_color)
             title_rect = title_surface.get_rect(center=(WINDOW_WIDTH // 2, title_y))
             
-            # Title glow effect
-            for i in range(5, 0, -1):
-                glow_surface = self.title_font.render(self.title_text, True, (*self.primary_color, 50))
+            # Title warm glow effect (much subtler than neon)
+            glow_intensity = math.sin(self.time * 2) * 0.3 + 0.7
+            for i in range(3, 0, -1):
+                glow_surface = self.title_font.render(self.title_text, True, (*self.accent_color, int(50 * glow_intensity)))
                 glow_rect = title_rect.copy()
-                glow_rect.x += random.randint(-i, i)
-                glow_rect.y += random.randint(-i, i)
+                glow_rect.x += i
+                glow_rect.y += i
                 self.screen.blit(glow_surface, glow_rect)
             
             self.screen.blit(title_surface, title_rect)
@@ -192,109 +185,112 @@ class Menu:
                 
                 # Update effects
                 if button["hover"]:
-                    button["glow_intensity"] = min(255, button["glow_intensity"] + 8)
-                    button["pulse"] = math.sin(self.time * 8) * 3
+                    button["animation"] = min(1.0, button["animation"] + 0.08)
+                    button["pulse"] = math.sin(self.time * 6) * 2
                 else:
-                    button["glow_intensity"] = max(0, button["glow_intensity"] - 12)
+                    button["animation"] = max(0.0, button["animation"] - 0.05)
                     button["pulse"] = 0
-
-                # Update scan line for enabled buttons
-                if button["enabled"]:
-                    button["scan_line"] = (button["scan_line"] + 2) % button["rect"].height
 
                 button_rect = button["rect"].copy()
                 button_rect.y = button["original_y"] + int(button["pulse"])
 
+                # Scale effect for hover
+                if button["animation"] > 0:
+                    scale_increase = int(10 * button["animation"])
+                    button_rect.inflate_ip(scale_increase, scale_increase // 2)
+
                 # Button colors
                 if not button["enabled"]:
-                    bg_color = (40, 40, 60, 150)
-                    border_color = (100, 100, 120)
-                    text_color = (120, 120, 140)
+                    bg_color = (60, 45, 35, 120)
+                    border_color = (80, 60, 45)
+                    text_color = (120, 100, 80)
                 elif button["hover"]:
-                    bg_color = (*self.hover_color, 120)
+                    bg_color = (*self.hover_color, 180)
                     border_color = self.hover_color
-                    text_color = (0, 0, 0)
+                    text_color = (40, 30, 20)
                 else:
-                    bg_color = (*self.primary_color, 30)
+                    bg_color = (*self.primary_color, 100)
                     border_color = self.primary_color
-                    text_color = (255, 255, 255)
+                    text_color = self.text_color
 
-                # Draw button glow
-                if button["glow_intensity"] > 0:
-                    self.draw_neon_border(button_rect, border_color, 2, int(button["glow_intensity"] / 20))
+                # Draw button warm glow for hover
+                if button["hover"]:
+                    self.draw_warm_glow(button_rect, border_color, button["animation"])
+
+                # Draw button shadow
+                shadow_rect = button_rect.copy()
+                shadow_rect.move_ip(3, 3)
+                shadow_surface = pygame.Surface((shadow_rect.width, shadow_rect.height), pygame.SRCALPHA)
+                pygame.draw.rect(shadow_surface, (*self.shadow_color, 100), (0, 0, shadow_rect.width, shadow_rect.height), border_radius=8)
+                self.screen.blit(shadow_surface, shadow_rect)
 
                 # Draw button background
                 button_surface = pygame.Surface((button_rect.width, button_rect.height), pygame.SRCALPHA)
-                pygame.draw.rect(button_surface, bg_color, (0, 0, button_rect.width, button_rect.height), border_radius=10)
+                pygame.draw.rect(button_surface, bg_color, (0, 0, button_rect.width, button_rect.height), border_radius=8)
                 self.screen.blit(button_surface, button_rect.topleft)
 
-                # Draw button border
-                pygame.draw.rect(self.screen, border_color, button_rect, width=3, border_radius=10)
+                # Draw wooden border
+                self.draw_wood_grain_border(button_rect, border_color, 3)
 
-                # Draw scanning line for enabled buttons
-                if button["enabled"] and not button["hover"]:
-                    scan_y = button_rect.top + button["scan_line"]
-                    scan_color = (*border_color, 100)
-                    scan_surface = pygame.Surface((button_rect.width, 2), pygame.SRCALPHA)
-                    scan_surface.fill(scan_color)
-                    self.screen.blit(scan_surface, (button_rect.left, scan_y))
+                # Draw wood grain texture for enabled buttons
+                if button["enabled"]:
+                    # Subtle horizontal lines to simulate wood grain
+                    for y_offset in range(0, button_rect.height, 8):
+                        y_pos = button_rect.top + y_offset
+                        alpha = 30 + int(20 * math.sin(self.time * 2 + y_offset * 0.1))
+                        grain_color = (*border_color, alpha)
+                        grain_surface = pygame.Surface((button_rect.width - 10, 1), pygame.SRCALPHA)
+                        grain_surface.fill(grain_color)
+                        self.screen.blit(grain_surface, (button_rect.left + 5, y_pos))
 
                 # Draw button text with proper sizing
-                if button["enabled"] and button["hover"]:
-                    # For hovered buttons, use regular text (no glitch effect that might overflow)
-                    label = self.button_font.render(button["text"], True, text_color)
+                label = self.button_font.render(button["text"], True, text_color)
+                label_rect = label.get_rect(center=button_rect.center)
+                
+                # Ensure text fits within button bounds
+                if label_rect.width > button_rect.width - 20:
+                    # Use smaller font if text is too wide
+                    smaller_font = pygame.font.SysFont("Arial", 28, bold=True)
+                    label = smaller_font.render(button["text"], True, text_color)
                     label_rect = label.get_rect(center=button_rect.center)
-                    
-                    # Ensure text fits within button bounds
-                    if label_rect.width > button_rect.width - 20:
-                        # Use smaller font if text is too wide
-                        smaller_font = pygame.font.SysFont("Arial", 28, bold=True)
-                        label = smaller_font.render(button["text"], True, text_color)
-                        label_rect = label.get_rect(center=button_rect.center)
-                    
-                    self.screen.blit(label, label_rect)
-                else:
-                    label = self.button_font.render(button["text"], True, text_color)
-                    label_rect = label.get_rect(center=button_rect.center)
-                    
-                    # Ensure text fits within button bounds
-                    if label_rect.width > button_rect.width - 20:
-                        # Use smaller font if text is too wide
-                        smaller_font = pygame.font.SysFont("Arial", 28, bold=True)
-                        label = smaller_font.render(button["text"], True, text_color)
-                        label_rect = label.get_rect(center=button_rect.center)
-                    
-                    self.screen.blit(label, label_rect)
+                
+                # Text shadow for depth
+                shadow_label = self.button_font.render(button["text"], True, self.shadow_color)
+                if label_rect.width > button_rect.width - 20:
+                    shadow_label = smaller_font.render(button["text"], True, self.shadow_color)
+                shadow_rect = shadow_label.get_rect(center=(button_rect.centerx + 1, button_rect.centery + 1))
+                self.screen.blit(shadow_label, shadow_rect)
+                self.screen.blit(label, label_rect)
 
-                # Holographic effect for disabled buttons
+                # Subtle shine effect for disabled buttons (instead of holographic)
                 if not button["enabled"]:
-                    holo_surface = pygame.Surface((button_rect.width, button_rect.height), pygame.SRCALPHA)
-                    for y in range(0, button_rect.height, 4):
-                        alpha = int(abs(math.sin(self.time * 2 + y * 0.1)) * 40)
-                        pygame.draw.line(holo_surface, (255, 255, 255, alpha), 
-                                       (0, y), (button_rect.width, y), 1)
-                    self.screen.blit(holo_surface, button_rect.topleft)
+                    shine_surface = pygame.Surface((button_rect.width, button_rect.height), pygame.SRCALPHA)
+                    for y in range(0, button_rect.height, 6):
+                        alpha = int(abs(math.sin(self.time * 1.5 + y * 0.1)) * 25)
+                        pygame.draw.line(shine_surface, (255, 255, 255, alpha), 
+                                       (5, y), (button_rect.width - 5, y), 1)
+                    self.screen.blit(shine_surface, button_rect.topleft)
 
-            # Draw corner decorations
+            # Draw warm corner decorations (wood-style instead of cyberpunk)
             corner_size = 50
             corner_color = self.accent_color
             
             # Top-left corner
             pygame.draw.lines(self.screen, corner_color, False, 
-                            [(20, 20 + corner_size), (20, 20), (20 + corner_size, 20)], 3)
+                            [(20, 20 + corner_size), (20, 20), (20 + corner_size, 20)], 4)
             # Top-right corner  
             pygame.draw.lines(self.screen, corner_color, False,
                             [(WINDOW_WIDTH - 20 - corner_size, 20), (WINDOW_WIDTH - 20, 20), 
-                             (WINDOW_WIDTH - 20, 20 + corner_size)], 3)
+                             (WINDOW_WIDTH - 20, 20 + corner_size)], 4)
             # Bottom-left corner
             pygame.draw.lines(self.screen, corner_color, False,
                             [(20, WINDOW_HEIGHT - 20 - corner_size), (20, WINDOW_HEIGHT - 20), 
-                             (20 + corner_size, WINDOW_HEIGHT - 20)], 3)
+                             (20 + corner_size, WINDOW_HEIGHT - 20)], 4)
             # Bottom-right corner
             pygame.draw.lines(self.screen, corner_color, False,
                             [(WINDOW_WIDTH - 20 - corner_size, WINDOW_HEIGHT - 20), 
                              (WINDOW_WIDTH - 20, WINDOW_HEIGHT - 20), 
-                             (WINDOW_WIDTH - 20, WINDOW_HEIGHT - 20 - corner_size)], 3)
+                             (WINDOW_WIDTH - 20, WINDOW_HEIGHT - 20 - corner_size)], 4)
 
             # Handle events
             for event in pygame.event.get():
@@ -309,9 +305,10 @@ class Menu:
                                 return "offline"
                             
                             elif button["text"] == "Local Host":
-                                self.fade_out()
-                                return "local_host"
-                            
+                                local_menu = LocalHostMenu(self.screen)
+                                choice = local_menu.run()
+                                return choice
+    
                             elif button["text"] == "Quit":
                                 pygame.quit()
                                 sys.exit()
@@ -324,190 +321,101 @@ class Menu:
             pygame.display.flip()
 
     def fade_out(self):
-        # Enhanced color palette with more contrast
-        neon_colors = [
-            (255, 20, 147),   # Deep Pink
-            (0, 255, 255),    # Cyan
-            (255, 255, 0),    # Yellow  
-            (50, 205, 50),    # Lime Green
-            (255, 69, 0),     # Red Orange
-            (138, 43, 226),   # Blue Violet
-            (255, 215, 0),    # Gold
-            (255, 105, 180),  # Hot Pink
+        """Warm, wood-themed fade out effect instead of cyberpunk glitch"""
+        warm_colors = [
+            (180, 140, 100),  # Golden brown
+            (150, 110, 70),   # Medium brown  
+            (220, 180, 120),  # Light golden
+            (200, 160, 110),  # Warm brown
+            (240, 200, 140),  # Cream
+            (160, 120, 80),   # Dark golden
         ]
         
         # Create surfaces with proper alpha support
         overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.SRCALPHA)
-        distortion = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.SRCALPHA)
         
         # Capture the original screen
         original_screen = self.screen.copy()
         
-        total_frames = 90  # More controlled timing
+        total_frames = 60
         
         for frame in range(total_frames):
-            # Progress from 0 to 1
             progress = frame / total_frames
             
             # Start with original screen
             self.screen.blit(original_screen, (0, 0))
             
-            # === PHASE 1: DIGITAL NOISE (0-30%) ===
-            if progress < 0.3:
-                noise_intensity = progress / 0.3
-                for _ in range(int(noise_intensity * 200)):
+            # === PHASE 1: WARM PARTICLES (0-40%) ===
+            if progress < 0.4:
+                particle_intensity = progress / 0.4
+                for _ in range(int(particle_intensity * 100)):
                     x = random.randint(0, WINDOW_WIDTH - 1)
                     y = random.randint(0, WINDOW_HEIGHT - 1)
-                    color = random.choice(neon_colors)
-                    size = random.randint(1, 3)
-                    pygame.draw.circle(self.screen, color, (x, y), size)
-            
-            # === PHASE 2: GLITCH TEARS (20-60%) ===
-            if 0.2 < progress < 0.6:
-                glitch_intensity = (progress - 0.2) / 0.4
-                
-                # Horizontal tears
-                for _ in range(int(glitch_intensity * 8)):
-                    y_pos = random.randint(0, WINDOW_HEIGHT - 40)
-                    height = random.randint(5, 20)
-                    width = WINDOW_WIDTH
-                    
-                    # Create displaced section
-                    if random.random() > 0.5:
-                        # Shift right
-                        shift = random.randint(10, 50)
-                        source_rect = pygame.Rect(0, y_pos, width - shift, height)
-                        dest_pos = (shift, y_pos)
-                        self.screen.blit(original_screen, dest_pos, source_rect)
-                        
-                        # Fill gap with neon color
-                        gap_rect = pygame.Rect(0, y_pos, shift, height)
-                        pygame.draw.rect(self.screen, random.choice(neon_colors), gap_rect)
-                    else:
-                        # Shift left  
-                        shift = random.randint(10, 50)
-                        source_rect = pygame.Rect(shift, y_pos, width - shift, height)
-                        dest_pos = (0, y_pos)
-                        self.screen.blit(original_screen, dest_pos, source_rect)
-                        
-                        # Fill gap with neon color
-                        gap_rect = pygame.Rect(width - shift, y_pos, shift, height)
-                        pygame.draw.rect(self.screen, random.choice(neon_colors), gap_rect)
-            
-            # === PHASE 3: CHROMATIC ABERRATION (40-80%) ===
-            if 0.4 < progress < 0.8:
-                aberration_strength = ((progress - 0.4) / 0.4) * 8
-                
-                # Create RGB channel separation
-                red_channel = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
-                blue_channel = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
-                
-                # Copy original with offsets
-                red_offset = int(aberration_strength)
-                blue_offset = int(-aberration_strength)
-                
-                red_channel.blit(original_screen, (red_offset, 0))
-                blue_channel.blit(original_screen, (blue_offset, 0))
-                
-                # Blend channels
-                self.screen.blit(red_channel, (0, 0), special_flags=pygame.BLEND_MULT)
-                self.screen.blit(blue_channel, (0, 0), special_flags=pygame.BLEND_ADD)
-            
-            # === PHASE 4: SPIRAL VORTEX (60-100%) ===
-            if progress > 0.6:
-                vortex_intensity = (progress - 0.6) / 0.4
-                
-                # Clear overlay
-                overlay.fill((0, 0, 0, 0))
-                
-                center_x, center_y = WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2
-                max_radius = max(WINDOW_WIDTH, WINDOW_HEIGHT)
-                
-                # Create spiral pattern
-                for radius in range(0, max_radius, 12):
-                    for angle_step in range(0, 360, 15):
-                        angle = math.radians(angle_step + frame * 8)  # Rotating spiral
-                        
-                        x = center_x + int(radius * math.cos(angle))
-                        y = center_y + int(radius * math.sin(angle))
-                        
-                        if 0 <= x < WINDOW_WIDTH and 0 <= y < WINDOW_HEIGHT:
-                            # Color based on radius and time
-                            color_index = int((radius + frame * 2) / 40) % len(neon_colors)
-                            color = neon_colors[color_index]
-                            
-                            # Alpha based on vortex intensity and distance from center
-                            distance_factor = 1 - (radius / max_radius)
-                            alpha = int(vortex_intensity * distance_factor * 255)
-                            
-                            # Draw spiral arm
-                            arm_color = (*color, min(255, alpha))
-                            pygame.draw.circle(overlay, arm_color, (x, y), 3)
-                
-                # Apply vortex overlay
-                self.screen.blit(overlay, (0, 0))
-            
-            # === PHASE 5: FINAL DISSOLUTION (80-100%) ===
-            if progress > 0.8:
-                dissolve_intensity = (progress - 0.8) / 0.2
-                
-                # Pixelation effect
-                pixel_size = int(1 + dissolve_intensity * 15)
-                if pixel_size > 1:
-                    # Downscale and upscale for pixelation
-                    small_surface = pygame.transform.scale(
-                        self.screen, 
-                        (WINDOW_WIDTH // pixel_size, WINDOW_HEIGHT // pixel_size)
-                    )
-                    pixelated = pygame.transform.scale(
-                        small_surface, 
-                        (WINDOW_WIDTH, WINDOW_HEIGHT)
-                    )
-                    self.screen.blit(pixelated, (0, 0))
-                
-                # Add final chaos particles
-                for _ in range(int(dissolve_intensity * 300)):
-                    x = random.randint(0, WINDOW_WIDTH)
-                    y = random.randint(0, WINDOW_HEIGHT)
-                    color = random.choice(neon_colors)
+                    color = random.choice(warm_colors)
                     size = random.randint(1, 4)
-                    alpha = int((1 - dissolve_intensity) * 255)
+                    alpha = int(particle_intensity * 150)
                     
                     particle_surface = pygame.Surface((size * 2, size * 2), pygame.SRCALPHA)
                     pygame.draw.circle(particle_surface, (*color, alpha), (size, size), size)
                     self.screen.blit(particle_surface, (x - size, y - size))
             
-            # === SCREEN SHAKE (throughout) ===
-            if progress > 0.3:
-                shake_intensity = (progress - 0.3) * 10
-                shake_x = random.randint(-int(shake_intensity), int(shake_intensity))
-                shake_y = random.randint(-int(shake_intensity), int(shake_intensity))
+            # === PHASE 2: GENTLE BLUR (30-70%) ===
+            if 0.3 < progress < 0.7:
+                blur_intensity = (progress - 0.3) / 0.4
                 
-                if shake_x != 0 or shake_y != 0:
-                    temp_surface = self.screen.copy()
-                    self.screen.fill((0, 0, 0))
-                    self.screen.blit(temp_surface, (shake_x, shake_y))
+                # Create gentle blur by layering offset copies
+                blur_surface = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.SRCALPHA)
+                for offset in [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1)]:
+                    offset_x, offset_y = offset
+                    alpha = int(30 * blur_intensity)
+                    blur_surface.set_alpha(alpha)
+                    blur_surface.blit(original_screen, (offset_x, offset_y))
+                    self.screen.blit(blur_surface, (0, 0))
             
-            # === SCANLINES (final touch) ===
-            if frame % 3 == 0:  # Every 3rd frame
-                for y in range(0, WINDOW_HEIGHT, 3):
-                    alpha = int(progress * 100)
-                    line_color = (0, 0, 0, alpha)
-                    line_surface = pygame.Surface((WINDOW_WIDTH, 1), pygame.SRCALPHA)
-                    line_surface.fill(line_color)
-                    self.screen.blit(line_surface, (0, y))
+            # === PHASE 3: WARM VIGNETTE (50-100%) ===
+            if progress > 0.5:
+                vignette_intensity = (progress - 0.5) / 0.5
+                
+                # Create warm vignette
+                vignette_surface = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.SRCALPHA)
+                center_x, center_y = WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2
+                max_radius = max(WINDOW_WIDTH, WINDOW_HEIGHT) // 2
+                
+                for radius in range(0, max_radius, 5):
+                    alpha = int(vignette_intensity * (radius / max_radius) * 200)
+                    color = (*warm_colors[0], min(255, alpha))
+                    pygame.draw.circle(vignette_surface, color, (center_x, center_y), max_radius - radius, 5)
+                
+                self.screen.blit(vignette_surface, (0, 0))
+            
+            # === PHASE 4: FINAL DISSOLVE (70-100%) ===
+            if progress > 0.7:
+                dissolve_intensity = (progress - 0.7) / 0.3
+                
+                # Create dissolving effect with warm particles
+                for _ in range(int(dissolve_intensity * 200)):
+                    x = random.randint(0, WINDOW_WIDTH)
+                    y = random.randint(0, WINDOW_HEIGHT)
+                    color = random.choice(warm_colors)
+                    size = random.randint(2, 6)
+                    alpha = int((1 - progress) * 255)
+                    
+                    particle_surface = pygame.Surface((size * 2, size * 2), pygame.SRCALPHA)
+                    pygame.draw.circle(particle_surface, (*color, alpha), (size, size), size)
+                    self.screen.blit(particle_surface, (x - size, y - size))
+            
+            # === OVERALL DARKENING ===
+            darken_alpha = int(progress * 180)
+            darken_surface = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.SRCALPHA)
+            darken_surface.fill((20, 15, 10, darken_alpha))
+            self.screen.blit(darken_surface, (0, 0))
             
             pygame.display.flip()
-            
-            # Dynamic timing - faster in middle, slower at start/end
-            if progress < 0.2 or progress > 0.8:
-                pygame.time.delay(35)  # Slower for buildup/climax
-            else:
-                pygame.time.delay(20)  # Faster for chaos
+            pygame.time.delay(25)
         
-        # === FINAL FLASH ===
+        # === FINAL WARM FLASH ===
         flash_surface = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
-        flash_surface.fill((255, 255, 255))
+        flash_surface.fill((240, 220, 180))  # Warm cream color
         self.screen.blit(flash_surface, (0, 0))
         pygame.display.flip()
-        pygame.time.delay(80)
+        pygame.time.delay(50)
