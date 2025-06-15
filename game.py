@@ -9,7 +9,7 @@ from scenes.result_screen import ResultScreen
 from network.network_client import NetworkClient
 
 class Game:
-    def __init__(self, mode="offline"):
+    def __init__(self, mode="offline", host_ip=None):
         pygame.init()
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption("Chess")
@@ -26,7 +26,7 @@ class Game:
         self.is_online = mode == "local_host"
         
         if self.is_online:
-            self.network = NetworkClient("127.0.0.1")
+            self.network = NetworkClient(host_ip if host_ip else "127.0.0.1")
             self.network.connect()
             self.network.on_move_received = self.handle_opponent_move
         else:

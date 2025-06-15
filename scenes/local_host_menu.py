@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os
 import math
 from settings import WINDOW_WIDTH, WINDOW_HEIGHT, BG_COLOR
 
@@ -14,6 +15,20 @@ class LocalHostMenu:
         self.button_font = pygame.font.SysFont("Arial", 32, bold=True)
         self.subtitle_font = pygame.font.SysFont("Arial", 20)
         
+        # Load and scale background with proper path handling
+        try:
+            base_path = getattr(sys, '_MEIPASS', os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
+            image_path = os.path.join(base_path, "assets/images/menu_bg0.png")
+            self.bg_image = pygame.image.load(image_path)
+            img_width, img_height = self.bg_image.get_size()
+            scale = max(WINDOW_WIDTH / img_width, WINDOW_HEIGHT / img_height)
+            self.bg_image = pygame.transform.scale(self.bg_image, (int(img_width * scale), int(img_height * scale)))
+            self.bg_x = (WINDOW_WIDTH - self.bg_image.get_width()) // 2
+            self.bg_y = (WINDOW_HEIGHT - self.bg_image.get_height()) // 2
+        except:
+            # Fallback - use None to trigger gradient background
+            self.bg_image = None
+        
         # Enhanced color scheme (matching main menu wood/brown theme)
         self.bg_color = (40, 30, 20)
         self.accent_color = (180, 140, 100)
@@ -26,6 +41,12 @@ class LocalHostMenu:
         self.time = 0
         self.button_animations = [0, 0, 0]
         self.title_glow = 0
+        
+        # Create overlay for better text readability over background image
+        self.bg_overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.SRCALPHA)
+        for y in range(WINDOW_HEIGHT):
+            alpha = int(120 * (y / WINDOW_HEIGHT))
+            pygame.draw.line(self.bg_overlay, (0, 0, 0, alpha), (0, y), (WINDOW_WIDTH, y))
         
         # Button configuration with enhanced properties (removed icons for compatibility)
         self.buttons = [
@@ -58,19 +79,28 @@ class LocalHostMenu:
         for i, button in enumerate(self.buttons):
             button["rect"].center = (WINDOW_WIDTH // 2, start_y + i * 140)
 
-    def draw_gradient_background(self):
-        """Draw an animated gradient background with wood/brown tones"""
-        for y in range(WINDOW_HEIGHT):
-            # Create a subtle animated gradient with brown tones
-            wave = math.sin(self.time * 0.01 + y * 0.01) * 8
-            base_brown = 40
-            color_intensity = base_brown + wave
-            color = (
-                max(0, min(255, int(color_intensity * 1.2))),  # More red for brown
-                max(0, min(255, int(color_intensity * 0.8))),  # Less green
-                max(0, min(255, int(color_intensity * 0.5)))   # Even less blue
-            )
-            pygame.draw.line(self.screen, color, (0, y), (WINDOW_WIDTH, y))
+    def draw_background(self):
+        """Draw the background - either image or animated gradient"""
+        if self.bg_image:
+            # Apply subtle movement to background
+            offset_x = math.sin(self.time * 0.01) * 3
+            offset_y = math.cos(self.time * 0.015) * 2
+            self.screen.blit(self.bg_image, (self.bg_x + offset_x, self.bg_y + offset_y))
+            # Apply overlay for better text readability
+            self.screen.blit(self.bg_overlay, (0, 0))
+        else:
+            # Fallback gradient background with wood/brown tones
+            for y in range(WINDOW_HEIGHT):
+                # Create a subtle animated gradient with brown tones
+                wave = math.sin(self.time * 0.01 + y * 0.01) * 8
+                base_brown = 40
+                color_intensity = base_brown + wave
+                color = (
+                    max(0, min(255, int(color_intensity * 1.2))),  # More red for brown
+                    max(0, min(255, int(color_intensity * 0.8))),  # Less green
+                    max(0, min(255, int(color_intensity * 0.5)))   # Even less blue
+                )
+                pygame.draw.line(self.screen, color, (0, y), (WINDOW_WIDTH, y))
 
     def draw_floating_particles(self):
         """Draw subtle floating particles for ambiance"""
@@ -142,7 +172,7 @@ class LocalHostMenu:
         if button["hover"]:
             desc_surface = self.subtitle_font.render(button["description"], True, self.accent_color)
             # Position text well below the button to avoid overlap with other buttons
-            desc_rect = desc_surface.get_rect(center=(animated_rect.centerx, animated_rect.bottom + 25))
+            desc_rect = desc_surface.get_rect(center=(animated_rect.centerx, animated_rect.bottom + 20))
             
             # Draw a subtle background for the description text
             desc_bg_rect = desc_rect.copy()
@@ -211,7 +241,7 @@ class LocalHostMenu:
             self.time += 1
             
             # Draw background layers
-            self.draw_gradient_background()
+            self.draw_background()
             self.draw_floating_particles()
             self.draw_decorative_elements()
             

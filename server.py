@@ -3,7 +3,7 @@
 import socket
 import threading
 
-HOST = ''  # Listen on all interfaces
+HOST = '0.0.0.0'  # Listen on all interfaces
 PORT = 5001  # Match your port forwarding
 
 clients = []
