@@ -1,39 +1,85 @@
 # Chess
 
-A simple chess game built with Python and [pygame](https://www.pygame.org/).
+A turn-based chess game with full move validation, castling, and pawn promotion — built using Python and Pygame. The game features intuitive piece selection, legal move highlighting, and a modular structure for future multiplayer or AI integration.
 
-## Features
+![Chess Screenshot](assets/images/screenshot.png) <!-- Replace with actual path to your screenshot -->
 
-- 8×8 board with piece images
-- Highlights the selected square and all valid moves
-- Basic castling and pawn promotion
-- Uses settings in `settings.py` for window size and colours
+---
 
-## Requirements
+## 🧠 Tech Stack
 
-- Python 3.10+
-- `pygame` library (`pip install pygame`)
+- **Language:** Python 3.10+
+- **Library:** [Pygame](https://www.pygame.org/)
+- **Architecture:** Modular object-oriented structure (scenes, board, rules, UI)
 
-## Running
+---
 
-From the repository root run:
+## 🚀 Features
+
+- Standard 8x8 chess board with all legal pieces  
+- Legal move highlighting (blue tiles)  
+- Castling (king and rook)  
+- Pawn promotion to queen  
+- Clean GUI using Pygame  
+- Game result detection (checkmate, stalemate in progress)  
+- Modular design for easy expansion
+
+---
+
+## 📦 Installation & Running
 
 ```bash
+# Clone the repository
+git clone https://github.com/ALyS123/Chess.git
+cd Chess
+
+# Optional: Create a virtual environment
+python -m venv venv
+source venv/bin/activate      # macOS/Linux
+venv\Scripts\activate         # Windows
+
+# Install dependencies
+pip install pygame
+
+# Run the game
 python main.py
 ```
 
-Click a piece to select it and view its legal moves. Click again on one of the
-highlighted squares to move. Close the window or press <kbd>Esc</kbd> to exit.
+---
 
-## Repository layout
+## 🎮 Gameplay Controls
 
-- `board/` contains board representation and movement rules
-- `core/` holds input handling code
-- `pieces/` loads chess piece images from `assets/images`
-- `scenes/` contains placeholder modules for menus and game scenes
-- `utils/` helper functions
-- `settings.py` configuration constants
+- **Select a piece**: Click on a piece to highlight its valid moves  
+- **Move a piece**: Click on a highlighted square  
+- **Exit the game**: Press `Esc` or close the window  
 
-This code base is a work in progress and currently does not implement every
-rule of chess or AI opponents, but it provides a starting point for a Pygame
-chess project.
+---
+
+## 📁 Repository Structure
+
+```text
+Chess/
+├── assets/           # Piece images and sounds
+├── board/            # Board setup, movement logic, rule engine
+├── core/             # Input and scene handling
+├── pieces/           # Piece initialization and movement
+├── scenes/           # Menu and in-game scenes
+├── settings.py       # Game configuration (window, colors, etc.)
+├── main.py           # Entry point
+```
+
+---
+
+## 🛠 Future Improvements
+
+- Implement AI opponent (Minimax or Monte Carlo Tree Search)  
+- Add en passant and draw condition detection  
+- Create a main menu and in-game pause/restart options  
+- Add move history, timers, and score tracking  
+- Online multiplayer using sockets or REST API  
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
