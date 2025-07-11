@@ -2,8 +2,9 @@
 
 A turn-based chess game with full move validation, castling, and pawn promotion — built using Python and Pygame. The game features intuitive piece selection, legal move highlighting, and a modular structure for future multiplayer or AI integration.
 
-![Chess Screenshot](assets/images/screenshot.png) <!-- Replace with actual path to your screenshot -->
+![Chess Screenshot](assets/images/MenuSS.png)
 
+![Chess Screenshot](assets/images/GameSS.png)
 ---
 
 ## 🧠 Tech Stack
