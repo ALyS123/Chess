@@ -1,1 +1,3 @@
 board/old_code_in_board
+__pycache__/
+*.pyc

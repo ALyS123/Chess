@@ -10,7 +10,7 @@ from settings import BOARD_SIZE
 
 class Board:
     def __init__(self):
-        """self.board_pieces = [
+        self.board_pieces = [
             "bR", "bKnight", "bB", "bQ", "bK", "bB", "bKnight", "bR",
             "bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP",
             "0",  "0",  "0",  "0",  "0",  "0",  "0",  "0",
@@ -19,17 +19,6 @@ class Board:
             "0",  "0",  "0",  "0",  "0",  "0",  "0",  "0",
             "wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP",
             "wR", "wKnight", "wB", "wQ", "wK", "wB", "wKnight", "wR"
-        ]"""
-
-        self.board_pieces = [
-            "0", "0", "0", "bQ", "bK", "0", "0", "0",
-            "0", "0", "0", "0", "0", "0", "0", "0",
-            "0",  "0",  "0",  "0",  "0",  "0",  "0",  "0",
-            "0",  "0",  "0",  "0",  "0",  "0",  "0",  "0",
-            "0",  "0",  "0",  "0",  "0",  "0",  "0",  "0",
-            "0",  "0",  "0",  "0",  "0",  "0",  "0",  "0",
-            "wP", "wQ", "wQ", "0", "wP", "0", "0", "0",
-            "0", "0", "0", "wQ", "wK", "0", "0", "0"
         ]
 
         self.game_rules = GameRules(self)
